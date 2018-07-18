@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from app.notify_client import NotifyAdminAPIClient, _attach_current_user
+from app.notify_client import NotifyAdminAPIClient, _attach_current_user, cache
 
 
 class JobApiClient(NotifyAdminAPIClient):
@@ -60,6 +60,11 @@ class JobApiClient(NotifyAdminAPIClient):
 
         return jobs
 
+    @cache.set('has-jobs-{service_id}')
+    def has_jobs(self, service_id):
+        return bool(self.get_jobs()['data'])
+
+    @cache.delete('has-jobs-{service_id}')
     def create_job(self, job_id, service_id, scheduled_for=None):
 
         data = {"id": job_id}
