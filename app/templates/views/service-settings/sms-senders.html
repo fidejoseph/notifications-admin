@@ -28,11 +28,11 @@
     {% endif %}
     {% for item in sms_senders %}
       <div class="user-list-item">
-        <h3>
-          <span class="heading-small">{{ item.sms_sender }}</span>
+        <h3 class="heading-small">
+          {{ item.sms_sender }}
           {% if item.hint %}
             &ensp;
-            <span class="hint">
+            <span class="hint normal-weight-font">
               {{ item.hint }}
             </span>
           {% endif %}

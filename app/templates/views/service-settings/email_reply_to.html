@@ -29,8 +29,8 @@
     {% endif %}
     {% for item in reply_to_email_addresses %}
       <div class="user-list-item">
-        <h3>
-          <span class="heading-small">{{ item.email_address }}</span>&ensp;<span class="hint">
+        <h3 class="heading-small">
+          {{ item.email_address }}&ensp;<span class="hint normal-weight-font">
             {%- if item.is_default -%}
               (default)
             {% endif %}

@@ -15,12 +15,12 @@
     Organisations
   </h1>
   <nav class="browse-list">
-    <ul>
+    <ul class="heading-medium">
       {% for org in organisations %}
         <li class="browse-list-item">
           <a href="{{ url_for('main.organisation_dashboard', org_id=org['id']) }}" class="browse-list-link">{{ org['name'] }}</a>
           {% if not org['active'] %}
-            <span class="table-field-status-default heading-medium">- archived</span>
+            <span class="table-field-status-default">- archived</span>
           {% endif %}
         </li>
       {% endfor %}
