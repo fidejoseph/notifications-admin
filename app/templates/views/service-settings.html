@@ -119,6 +119,7 @@
           {{ edit_field(
             'Change',
             url_for('.branding_request', service_id=current_service.id),
+            permissions=['manage_service'],
           )}}
         {% endcall %}
 
@@ -319,6 +320,13 @@
           {{ text_field('Letter branding')}}
           {{ text_field(letter_branding) }}
           {{ edit_field('Change', url_for('.set_letter_branding', service_id=current_service.id)) }}
+        {% endcall %}
+        {% call row() %}
+          {{ text_field('Data retention')}}
+          {% call field() %}
+              {{ data_retention | join(', ', attribute='notification_type') }}
+          {% endcall %}
+          {{ edit_field('Change', url_for('.data_retention', service_id=current_service.id)) }}
         {% endcall %}
       {% endcall %}
 

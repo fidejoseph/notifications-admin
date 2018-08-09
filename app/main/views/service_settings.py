@@ -36,9 +36,12 @@ from app.main.forms import (
     RequestToGoLiveForm,
     ServiceBasicViewForm,
     ServiceContactLinkForm,
+    ServiceDataRetentionEditForm,
+    ServiceDataRetentionForm,
     ServiceEditInboundNumberForm,
     ServiceInboundNumberForm,
     ServiceLetterContactBlockForm,
+    ServicePreviewBranding,
     ServiceReplyToEmailForm,
     ServiceSetBranding,
     ServiceSmsSenderForm,
@@ -86,6 +89,7 @@ def service_settings(service_id):
     )
 
     free_sms_fragment_limit = billing_api_client.get_free_sms_fragment_limit_for_year(service_id)
+    data_retention = service_api_client.get_service_data_retention(service_id)
 
     return render_template(
         'views/service-settings.html',
@@ -104,6 +108,7 @@ def service_settings(service_id):
         free_sms_fragment_limit=free_sms_fragment_limit,
         prefix_sms=current_service.prefix_sms,
         organisation=organisation,
+        data_retention=data_retention,
     )
 
 
@@ -891,11 +896,35 @@ def set_free_sms_allowance(service_id):
 @user_is_platform_admin
 def service_set_email_branding(service_id):
     email_branding = email_branding_client.get_all_email_branding()
+    branding_type = current_service.get('branding')
 
-    form = ServiceSetBranding(branding_type=current_service.get('branding'))
+    form = ServiceSetBranding(branding_type=branding_type)
 
     # dynamically create org choices, including the null option
     form.branding_style.choices = [('None', 'None')] + get_branding_as_value_and_label(email_branding)
+
+    if form.validate_on_submit():
+        branding_style = None if form.branding_style.data == 'None' else form.branding_style.data
+        return redirect(url_for('.service_preview_email_branding', service_id=service_id,
+                        branding_type=form.branding_type.data, branding_style=branding_style))
+
+    form.branding_style.data = current_service['email_branding'] or 'None'
+
+    return render_template(
+        'views/service-settings/set-email-branding.html',
+        form=form,
+        branding_dict=get_branding_as_dict(email_branding)
+    )
+
+
+@main.route("/services/<service_id>/service-settings/preview-email-branding", methods=['GET', 'POST'])
+@login_required
+@user_is_platform_admin
+def service_preview_email_branding(service_id):
+    branding_type = request.args.get('branding_type', None)
+    branding_style = request.args.get('branding_style', None)
+
+    form = ServicePreviewBranding(branding_type=branding_type, branding_style=branding_style)
 
     if form.validate_on_submit():
         branding_style = None if form.branding_style.data == 'None' else form.branding_style.data
@@ -906,12 +935,11 @@ def service_set_email_branding(service_id):
         )
         return redirect(url_for('.service_settings', service_id=service_id))
 
-    form.branding_style.data = current_service.email_branding or 'None'
-
     return render_template(
-        'views/service-settings/set-email-branding.html',
+        'views/service-settings/preview-email-branding.html',
         form=form,
-        branding_dict=get_branding_as_dict(email_branding)
+        service_id=service_id,
+        action=url_for('main.service_preview_email_branding', service_id=service_id),
     )
 
 
@@ -1003,6 +1031,48 @@ def branding_request(service_id):
     return render_template(
         'views/service-settings/branding/email-options.html',
         form=form,
+    )
+
+
+@main.route("/services/<service_id>/data-retention", methods=['GET'])
+@login_required
+@user_is_platform_admin
+def data_retention(service_id):
+    results = service_api_client.get_service_data_retention(service_id)
+    return render_template('views/service-settings/data-retention.html',
+                           data_retention_settings=results)
+
+
+@main.route("/services/<service_id>/data-retention/add", methods=['GET', 'POST'])
+@login_required
+@user_is_platform_admin
+def add_data_retention(service_id):
+    form = ServiceDataRetentionForm()
+    if form.validate_on_submit():
+        service_api_client.create_service_data_retention(service_id,
+                                                         form.notification_type.data,
+                                                         form.days_of_retention.data)
+        return redirect(url_for('.data_retention', service_id=service_id))
+    return render_template(
+        'views/service-settings/data-retention/add.html',
+        form=form
+    )
+
+
+@main.route("/services/<service_id>/data-retention/<data_retention_id>/edit", methods=['GET', 'POST'])
+@login_required
+@user_is_platform_admin
+def edit_data_retention(service_id, data_retention_id):
+    data_retention_item = service_api_client.get_service_data_retention_by_id(service_id, data_retention_id)
+    form = ServiceDataRetentionEditForm(days_of_retention=data_retention_item['days_of_retention'])
+    if form.validate_on_submit():
+        service_api_client.update_service_data_retention(service_id, data_retention_id, form.days_of_retention.data)
+        return redirect(url_for('.data_retention', service_id=service_id))
+    return render_template(
+        'views/service-settings/data-retention/edit.html',
+        form=form,
+        data_retention_id=data_retention_id,
+        notification_type=data_retention_item['notification_type']
     )
 
 

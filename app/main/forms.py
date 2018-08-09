@@ -717,6 +717,12 @@ class ServiceSetBranding(StripWhitespaceForm):
     )
 
 
+class ServicePreviewBranding(StripWhitespaceForm):
+
+    branding_type = HiddenField('branding_type')
+    branding_style = HiddenField('branding_style')
+
+
 class ServiceSelectEmailBranding(StripWhitespaceForm):
 
     def __init__(self, email_brandings=[], *args, **kwargs):
@@ -871,7 +877,19 @@ class SearchUsersForm(StripWhitespaceForm):
 
 class SearchNotificationsForm(StripWhitespaceForm):
 
-    to = SearchField('Search by phone number or email address')
+    to = SearchField()
+
+    labels = {
+        'email': 'Search by email address',
+        'sms': 'Search by phone number',
+    }
+
+    def __init__(self, message_type, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.to.label.text = self.labels.get(
+            message_type,
+            'Search by phone number or email address',
+        )
 
 
 class PlaceholderForm(StripWhitespaceForm):
@@ -1035,3 +1053,27 @@ class BrandingOptionsEmail(StripWhitespaceForm):
             DataRequired()
         ],
     )
+
+
+class ServiceDataRetentionForm(StripWhitespaceForm):
+
+    notification_type = RadioField(
+        'What notification type?',
+        choices=[
+            ('email', 'Email'),
+            ('sms', 'SMS'),
+            ('letter', 'Letter'),
+        ],
+        validators=[DataRequired()],
+    )
+    days_of_retention = IntegerField(label="Days of retention",
+                                     validators=[validators.NumberRange(min=3, max=90,
+                                                                        message="Must be between 3 and 90")],
+                                     )
+
+
+class ServiceDataRetentionEditForm(StripWhitespaceForm):
+    days_of_retention = IntegerField(label="Days of retention",
+                                     validators=[validators.NumberRange(min=3, max=90,
+                                                                        message="Must be between 3 and 90")],
+                                     )

@@ -344,6 +344,14 @@ def valid_phone_number(phone_number):
         return False
 
 
+def format_notification_type(notification_type):
+    return {
+        'email': 'Email',
+        'sms': 'SMS',
+        'letter': 'Letter'
+    }[notification_type]
+
+
 def format_notification_status(status, template_type):
     return {
         'email': {
@@ -506,7 +514,7 @@ def useful_headers_after_request(response):
         "object-src 'self';"
         "font-src 'self' data:;"
         "img-src 'self' *.google-analytics.com *.notifications.service.gov.uk {} data:;"
-        "frame-src www.youtube.com;".format(get_cdn_domain())
+        "frame-src 'self' www.youtube.com;".format(get_cdn_domain())
     ))
     if 'Cache-Control' in response.headers:
         del response.headers['Cache-Control']
@@ -646,6 +654,7 @@ def add_template_filters(application):
         format_datetime_relative,
         format_delta,
         format_notification_status,
+        format_notification_type,
         format_notification_status_as_time,
         format_notification_status_as_field_status,
         format_notification_status_as_url,

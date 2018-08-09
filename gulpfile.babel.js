@@ -70,10 +70,11 @@ gulp.task('javascripts', () => gulp
     paths.src + 'javascripts/updateContent.js',
     paths.src + 'javascripts/listEntry.js',
     paths.src + 'javascripts/liveSearch.js',
-    paths.src + 'javascripts/analytics.js',
+    paths.src + 'javascripts/errorTracking.js',
     paths.src + 'javascripts/preventDuplicateFormSubmissions.js',
     paths.src + 'javascripts/fullscreenTable.js',
     paths.src + 'javascripts/conditionalRadios.js',
+    paths.src + 'javascripts/emailPreviewPane.js',
     paths.src + 'javascripts/main.js'
   ])
   .pipe(plugins.prettyerror())
