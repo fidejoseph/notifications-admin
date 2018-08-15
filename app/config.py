@@ -52,7 +52,7 @@ class Config(object):
     SESSION_REFRESH_EACH_REQUEST = True
     SHOW_STYLEGUIDE = True
     # TODO: move to utils
-    SMS_CHAR_COUNT_LIMIT = 459
+    SMS_CHAR_COUNT_LIMIT = 612
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = None
     CSV_UPLOAD_BUCKET_NAME = 'local-notifications-csv-upload'
